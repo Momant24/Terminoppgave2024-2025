@@ -1,24 +1,151 @@
-#boss {
-    padding: 20px;
-    font-size: 24px;
-    background-color: #ff6666;
-    color: white;
+/* Global styling for hele siden */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Konteiner som omgir skjemaer og innhold */
+.container {
+    background-color: #fff;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Generell styling for overskrifter */
+h1, h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 1em;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+/* Input felt-styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 0.8em;
+    margin: 0.5em 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #fafafa;
+}
+
+/* Styling for knapper */
+button, .btn, input[type="submit"] {
+    width: 100%;
+    padding: 0.8em;
     border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 1em;
     cursor: pointer;
+    margin-top: 1em;
+    transition: background-color 0.3s ease;
 }
-#info{
-    margin-top: 20px;
+
+button:hover, .btn:hover, input[type="submit"]:hover {
+    background-color: #0056b3;
 }
-#upgradeButton, #upgradeButton2, #upgradeButton3, #upgradeButton4, #upgradeButton5{
-    padding: 5px;
-    font-size: 10px;
-    background-color: #66ff66;
-    color: black;
+
+/* Informasjonstekst og lenker */
+a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Flash-meldinger */
+.flash {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 1em;
+    margin-top: 1em;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Spillside - layout og oppgraderingknapper */
+#info {
+    margin-top: 1em;
+    padding: 1em;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+button#boss {
+    font-size: 1.2em;
+    padding: 1em;
     border: none;
+    background-color: #ff6347;
+    color: #fff;
+    border-radius: 50%;
     cursor: pointer;
-    margin-top: 3px;
+    width: 100px;
+    height: 100px;
+    margin: 1em auto;
+    display: block;
+    transition: background-color 0.3s ease;
 }
-.Oppgraderinger{
-margin-top: 20px;
-    
+
+button#boss:hover {
+    background-color: #e55340;
 }
+
+.Oppgraderinger {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5em;
+    margin-top: 1em;
+}
+
+.Oppgraderinger button {
+    font-size: 1em;
+    padding: 0.8em;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.Oppgraderinger button:hover {
+    background-color: #218838;
+}
+
+/* Media queries for smaller screens */
+@media (max-width: 600px) {
+    .container {
+        padding: 1.5em;
+        width: 90%;
+    }
+
+    h1, h2 {
+        font-size: 1.5em;
+    }
+
+    #info {
+        padding: 1em;
+    }
+}
+/* Stiler for navigasjonsmenyen */

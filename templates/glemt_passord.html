@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glemt passord</title>
+    <link rel="stylesheet" href="static/Style.css">
 </head>
 <body>
-    <h1>Glemt passord</h1>
-    <form method="POST">
-        <input type="email" name="email" placeholder="Din e-post" required>
-        <button type="submit">Send tilbakestillingskode</button>
-    </form>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="container">
+        <h1>Glemt passord</h1>
+        <form method="POST">
+            <input type="email" name="email" placeholder="Din e-post" required>
+            <button type="submit">Send tilbakestillingskode</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li class="flash">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
 </body>
 </html>

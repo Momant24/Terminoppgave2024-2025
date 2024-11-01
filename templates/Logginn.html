@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Logg inn</title>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        {{ form.email }}
-        {{ form.password }}
-        {{ form.submit }}
-    </form>
-<a href="Registrer">Har du ikke en bruker? Lag en</a>
-<a href="glemt_passord">Glemt passord?</a>
+    <div class="container">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            {{ form.email }}
+            {{ form.password }}
+            {{ form.submit }}
+        </form>
+        <a href="Registrer">Har du ikke en bruker? Lag en</a>
+        <a href="glemt_passord">Glemt passord?</a>
+    </div>
 </body>
 </html>

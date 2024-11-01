@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Verifiser E-post</title>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <h1>Verifiser E-post</h1>
-    <form method="POST">
-        <input type="text" name="code" placeholder="Skriv inn verifiseringskode" required>
-        <input type="submit" value="Verifiser">
-    </form>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <div class="container">
+        <h1>Verifiser E-post</h1>
+        <form method="POST">
+            <input type="text" name="code" placeholder="Skriv inn verifiseringskode" required>
+            <input type="submit" value="Verifiser">
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li class="flash">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
 </body>
 </html>
