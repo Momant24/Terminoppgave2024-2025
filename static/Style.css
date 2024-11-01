@@ -1,0 +1,24 @@
+#boss {
+    padding: 20px;
+    font-size: 24px;
+    background-color: #ff6666;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+#info{
+    margin-top: 20px;
+}
+#upgradeButton, #upgradeButton2, #upgradeButton3, #upgradeButton4, #upgradeButton5{
+    padding: 5px;
+    font-size: 10px;
+    background-color: #66ff66;
+    color: black;
+    border: none;
+    cursor: pointer;
+    margin-top: 3px;
+}
+.Oppgraderinger{
+margin-top: 20px;
+    
+}

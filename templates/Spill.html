@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klikker-spill med Oppgraderinger</title>
+    <link rel="stylesheet" href="static/Style.css">
+</head>
+<body>
+    
+    <h1>Klikker-spill: Boss Battle med Oppgraderinger</h1>
+    <button id="boss">Boss - Klikk meg!</button>
+    
+    <div id="info">
+        <p>Bossens liv: <span id="bossHealth">10</span></p>
+        <p>Skaden din per klikk: <span id="damage">1</span></p>
+        <p>Antall ganger beseiret: <span id="defeats">0</span></p>
+        <p>Gull: <span id="gold">0</span></p>
+        <p>Antall turrets: <span id="Turret">0</span></p>
+        <p>Skade turrets en: <span id="Turretskadeen">0</span></p>
+        <p>Skade turrets sammen: <span id="Turretskade">0</span></p>
+        <p>Turett hastighet per milisekund: <span id="Turretspeed">0</span></p>
+    </div>
+    <div class="Oppgraderinger">
+        <div id="upgrades">
+            <button id="upgradeButton">Dobler damage (Koster 10 Gull)</button>
+        </div>
+        <div id="upgrades2">
+            <button id="upgradeButton2">5 mer gull per greie (Koster 15 Gull)</button>
+        </div>
+        <div id="upgrades3">
+            <button id="upgradeButton3">Tårn som gjør automatisk skade (Koster 50 Gull)</button>
+        </div>
+        <div id="upgrades4">
+            <button id="upgradeButton4">Mere skade for turrets (Koster 1 Gull)</button>
+        </div>
+        <div id="upgrades5">
+            <button id="upgradeButton5">Kjappere skyting av turrets (Koster 15 Gull)</button>
+        </div>
+    </div>
+    
+    <script src="static/javascript.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Tilbakestilling av passord</title>
+</head>
+<body>
+    <h1>Tilbakestilling av passord</h1>
+    <form method="POST">
+        <input type="text" name="code" placeholder="Skriv inn tilbakestillingskode" required>
+        <br>
+        <input type="password" name="new_password" placeholder="Nytt passord" required>
+        <br>
+        <input type="submit" value="Tilbakestill passord">
+    </form>
+    <p>{{ get_flashed_messages()[0] }}</p>
+</body>
+</html>
