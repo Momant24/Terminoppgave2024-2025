@@ -1,4 +1,5 @@
 {% extends 'nav.html' %}
+<a href="" target="_blank" class="nav-link">Spill</a>
 {% block body %}
 <!DOCTYPE html>
 <html lang="no">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+    <p>Antall spillere som har trykket på spillet: {{ visit_count }}</p>
     <div class="container">
         <h1>Klikker-spill: Boss Battle med Oppgraderinger</h1>
         <button id="boss">Big Mama</button>

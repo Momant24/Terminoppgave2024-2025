@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, flash
+from flask import Flask, render_template, url_for, redirect, request, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user
 from flask_wtf import FlaskForm
@@ -41,6 +41,16 @@ login_manager.login_view = "login"
 
 
 
+# Definer VisitCount-modellen
+class VisitCount(db.Model):
+    __tablename__ = 'visit_count'
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer, default=0)
+
+# Sjekk om 'visit_count'-tabellen finnes, og opprett den hvis ikke
+with app.app_context():
+    if 'visit_count' not in db.metadata.tables:
+        db.create_all()  # Oppretter alle tabeller som ikke finnes
 
 
 # Definerer en modell for bruker
@@ -119,7 +129,17 @@ def verify(email):
 @app.route('/loggetinn', methods=['GET', 'POST'])
 @login_required
 def Loggetinnn():
-    return render_template('Loggetinn.html')
+    # Hent besøkstelleren fra databasen
+    visit_count = VisitCount.query.first()
+    
+    # Hvis visit_count ikke eksisterer (f.eks. hvis databasen er ny), sett den til 0
+    if visit_count:
+        count = visit_count.count
+    else:
+        count = 0  # Hvis ikke opprettet, sett som 0 eller gjør en håndtering her
+
+    # Returner Loggetinn.html og send med `visit_count`
+    return render_template('Loggetinn.html', visit_count=count)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -181,10 +201,27 @@ def tilbakestill_passord(email):
 @app.route('/Spill')
 @login_required
 def spill():
-    return render_template("Spill.html")
+    # Hent besøkstelleren fra databasen, eller opprett en ny rad hvis den ikke finnes
+    visit_count = VisitCount.query.first()
 
 
+    # Hvis ingen besøksteller finnes, opprett en
+    if not visit_count:
+        visit_count = VisitCount(count=0)
+        db.session.add(visit_count)
+        db.session.commit()
 
+    # Sjekk om brukeren allerede har talt et besøk i denne sesjonen
+    if 'has_counted' not in session:
+        # Øk antall besøk og lagre det
+        visit_count.count += 1
+        db.session.commit()  # Commit after making changes
+
+        # Sett sesjonsvariabel for å forhindre flere tellinger
+        session['has_counted'] = True
+
+    # Returner Spill.html og send med `visit_count`
+    return render_template('Spill.html', visit_count=visit_count.count)
 
 if __name__ == '__main__':
     app.run(debug=True)
