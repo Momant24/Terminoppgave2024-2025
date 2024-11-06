@@ -22,6 +22,9 @@ app.config['SECRET_KEY'] = 'Hemmeligpassord'
 
 # Initialiserer databasen
 db = SQLAlchemy(app)
+
+with app.app_context():
+    db.create_all()
 # Flask-Mail config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -130,17 +133,10 @@ def verify(email):
 @app.route('/loggetinn', methods=['GET', 'POST'])
 @login_required
 def Loggetinnn():
-    # Hent besøkstelleren fra databasen
     visit_count = VisitCount.query.first()
-    
-    # Hvis visit_count ikke eksisterer (f.eks. hvis databasen er ny), sett den til 0
-    if visit_count:
-        count = visit_count.count
-    else:
-        count = 0  # Hvis ikke opprettet, sett som 0 eller gjør en håndtering her
-    visit_count = VisitCount.query.first()
+    count = visit_count.count if visit_count else 0
     top_users = User.query.order_by(User.defeats.desc()).limit(10).all()
-    return render_template('Loggetinn.html', visit_count=visit_count.count, top_users=top_users)
+    return render_template('Loggetinn.html', visit_count=count, top_users=top_users)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -228,10 +224,12 @@ def spill():
 @login_required
 def update_defeats():
     try:
-        # Initialiser defeats til 0 hvis den er None
+        if not hasattr(current_user, 'defeats'):
+            print("'defeats' attribute does not exist on User model")
+            return jsonify({"error": "User model does not have 'defeats' attribute"}), 500
+        
         if current_user.defeats is None:
             current_user.defeats = 0
-        
         current_user.defeats += 1
         db.session.commit()
         print(f"Defeats updated for user {current_user.email}. New value: {current_user.defeats}")
@@ -240,7 +238,16 @@ def update_defeats():
         print(f"Error updating defeats: {str(e)}")
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+from sqlalchemy import inspect
 
+def column_exists(table, column):
+    inspector = inspect(db.engine)
+    return column in [c['name'] for c in inspector.get_columns(table)]
+
+with app.app_context():
+    if not column_exists('user', 'defeats'):
+        print("'defeats' column does not exist in User table. Please run database migrations.")
    
 if __name__ == '__main__':
     app.run(debug=True)
