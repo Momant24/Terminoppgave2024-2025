@@ -1,6 +1,17 @@
 {% extends 'nav.html' %}
+
 {% block body %}
 <p>Antall spillere som har trykket på spillet: {{ visit_count }}</p>
 <title>Logget inn</title>
 <h1>Du er logget inn</h1>
+
+<div id="leaderboard">
+    <h2>Toppliste - Flest beseirede bosser</h2>
+    <ol>
+    {% for user in top_users %}
+        <li>{{ user.email }} - Beseirede bosser: {{ user.defeats }}</li>
+    {% endfor %}
+    </ol>
+</div>
+
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, flash, session
+from flask import Flask, render_template, url_for, redirect, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user
 from flask_wtf import FlaskForm
@@ -58,6 +58,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)  # E-postadresse
     password = db.Column(db.String(80), nullable=False)
+    defeats = db.Column(db.Integer, default=0)
 
 
 class RegisterForm(FlaskForm):
@@ -137,9 +138,9 @@ def Loggetinnn():
         count = visit_count.count
     else:
         count = 0  # Hvis ikke opprettet, sett som 0 eller gjør en håndtering her
-
-    # Returner Loggetinn.html og send med `visit_count`
-    return render_template('Loggetinn.html', visit_count=count)
+    visit_count = VisitCount.query.first()
+    top_users = User.query.order_by(User.defeats.desc()).limit(10).all()
+    return render_template('Loggetinn.html', visit_count=visit_count.count, top_users=top_users)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -223,5 +224,13 @@ def spill():
     # Returner Spill.html og send med `visit_count`
     return render_template('Spill.html', visit_count=visit_count.count)
 
+@app.route('/update_defeats', methods=['POST'])
+@login_required
+def update_defeats():
+    data = request.json
+    current_user.defeats += 1  # Øk antall beseirede bosser med 1
+    db.session.commit()
+    
+    return jsonify({"success": True}), 200
 if __name__ == '__main__':
     app.run(debug=True)

@@ -53,6 +53,14 @@ if (bossHealth <= 0) {
     goldDisplay.textContent = gold;
     bossHealthDisplay.textContent = bossHealth; 
     
+    // Send defeats til serveren
+    fetch('/update_defeats', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ defeats: defeats }),
+    });
     
 }
 }
