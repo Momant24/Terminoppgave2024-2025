@@ -195,30 +195,33 @@ def tilbakestill_passord(email):
             flash("Feil tilbakestillingskode, prøv igjen.")
 
     return render_template('tilbakestill_passord.html', email=email)
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 @app.route('/Spill')
 @login_required
 def spill():
-    # Hent besøkstelleren fra databasen, eller opprett en ny rad hvis den ikke finnes
-    visit_count = VisitCount.query.first()
+    try:
+        # Hent besøkstelleren
+        visit_count = VisitCount.query.first()
+        logging.debug(f"Retrieved visit_count: {visit_count}")
 
+        if not visit_count:
+            logging.debug("No visit count found, creating new one")
+            visit_count = VisitCount(count=0)
+            db.session.add(visit_count)
+            db.session.commit()
 
-    # Hvis ingen besøksteller finnes, opprett en
-    if not visit_count:
-        visit_count = VisitCount(count=0)
-        db.session.add(visit_count)
-        db.session.commit()
+        if 'has_counted' not in session:
+            logging.debug("Incrementing visit count")
+            visit_count.count += 1
+            db.session.commit()
+            session['has_counted'] = True
 
-    # Sjekk om brukeren allerede har talt et besøk i denne sesjonen
-    if 'has_counted' not in session:
-        # Øk antall besøk og lagre det
-        visit_count.count += 1
-        db.session.commit()  # Commit after making changes
-
-        # Sett sesjonsvariabel for å forhindre flere tellinger
-        session['has_counted'] = True
-
-    # Returner Spill.html og send med `visit_count`
-    return render_template('Spill.html', visit_count=visit_count.count)
+        return render_template('Spill.html', visit_count=visit_count.count)
+    except Exception as e:
+        logging.error(f"Error in spill route: {str(e)}", exc_info=True)
+        return f"En feil oppstod: {str(e)}", 500
 
 @app.route('/update_defeats', methods=['POST'])
 @login_required
@@ -248,6 +251,14 @@ def column_exists(table, column):
 with app.app_context():
     if not column_exists('user', 'defeats'):
         print("'defeats' column does not exist in User table. Please run database migrations.")
+
+# Legg til dette midlertidig i app.py for å oppdatere eksisterende brukere
+with app.app_context():
+    users = User.query.all()
+    for user in users:
+        if user.defeats is None:
+            user.defeats = 0
+    db.session.commit()  
    
 if __name__ == '__main__':
     app.run(debug=True)
