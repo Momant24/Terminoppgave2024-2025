@@ -117,17 +117,33 @@ def login():
                 return redirect(url_for('verify', email=user.email))  # Omadresser til verifiseringsrute
     return render_template("Logginn.html", form=form)
 
+
+from datetime import datetime, timedelta
+
+verification_codes = {}
+
+def generate_verification_code(email):
+    code = random.randint(100000, 999999)
+    expiration = datetime.now() + timedelta(minutes=10)  # Koden utløper etter 10 minutter
+    verification_codes[email] = {'code': code, 'expiration': expiration}
+    return code
+
 @app.route('/verifiser/<email>', methods=['GET', 'POST'])
 def verify(email):
     if request.method == 'POST':
         code_entered = request.form.get('code')
-        if int(code_entered) == verification_codes.get(email):
-            user = User.query.filter_by(email=email).first()
-            login_user(user)  # Logg inn brukeren hvis koden er riktig
-            flash("Velkommen!")
-            return redirect(url_for('Loggetinnn'))
+        stored_data = verification_codes.get(email)
+        if stored_data and datetime.now() < stored_data['expiration']:
+            if int(code_entered) == stored_data['code']:
+                user = User.query.filter_by(email=email).first()
+                login_user(user)
+                flash("Velkommen!")
+                del verification_codes[email]  # Fjern koden etter vellykket verifisering
+                return redirect(url_for('Loggetinnn'))
+            else:
+                flash("Feil verifiseringskode, prøv igjen.")
         else:
-            flash("Feil verifiseringskode, prøv igjen.")
+            flash("Verifiseringskoden er utløpt eller ugyldig.")
     return render_template('verifiser.html', email=email)
 
 @app.route('/loggetinn', methods=['GET', 'POST'])
