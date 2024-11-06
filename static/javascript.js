@@ -42,27 +42,33 @@ Turretspeeddisplay.textContent = kjaphet;
 
 
 function bossdead(){
-if (bossHealth <= 0) {
-    // Bossen blir beseiret
-    defeats++; // Øker antall ganger bossen er beseiret
-    gold += goldnum; // Spilleren får 5 gull for hver beseiret boss
-    maxBossHealth += 5; // Øker bossens maks-liv med 5 hver gang
-    bossHealth = maxBossHealth; // Setter bossens liv til nye maks-liv
-    // Oppdaterer HTML-elementene
-    defeatsDisplay.textContent = defeats;
-    goldDisplay.textContent = gold;
-    bossHealthDisplay.textContent = bossHealth; 
-    
-    // Send defeats til serveren
-    fetch('/update_defeats', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ defeats: defeats }),
-    });
-    
-}
+    if (bossHealth <= 0) {
+        defeats++;
+        gold += goldnum;
+        maxBossHealth += 5;
+        bossHealth = maxBossHealth;
+        defeatsDisplay.textContent = defeats;
+        goldDisplay.textContent = gold;
+        bossHealthDisplay.textContent = bossHealth; 
+        
+        // Send defeats til serveren
+        fetch('/update_defeats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ defeats: defeats }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Defeats updated successfully. New value:", data.new_defeats);
+            } else {
+                console.error("Failed to update defeats:", data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 }
 
 function updatte(){

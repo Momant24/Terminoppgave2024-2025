@@ -227,10 +227,20 @@ def spill():
 @app.route('/update_defeats', methods=['POST'])
 @login_required
 def update_defeats():
-    data = request.json
-    current_user.defeats += 1  # Øk antall beseirede bosser med 1
-    db.session.commit()
-    
-    return jsonify({"success": True}), 200
+    try:
+        # Initialiser defeats til 0 hvis den er None
+        if current_user.defeats is None:
+            current_user.defeats = 0
+        
+        current_user.defeats += 1
+        db.session.commit()
+        print(f"Defeats updated for user {current_user.email}. New value: {current_user.defeats}")
+        return jsonify({"success": True, "new_defeats": current_user.defeats}), 200
+    except Exception as e:
+        print(f"Error updating defeats: {str(e)}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+   
 if __name__ == '__main__':
     app.run(debug=True)
