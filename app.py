@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = 'Hemmeligpassord'
 
 # Initialiserer databasen
 db = SQLAlchemy(app)
-
+# Legg til dette rett etter db = SQLAlchemy(app)
 with app.app_context():
     db.create_all()
 # Flask-Mail config
@@ -117,42 +117,33 @@ def login():
                 return redirect(url_for('verify', email=user.email))  # Omadresser til verifiseringsrute
     return render_template("Logginn.html", form=form)
 
-
-from datetime import datetime, timedelta
-
-verification_codes = {}
-
-def generate_verification_code(email):
-    code = random.randint(100000, 999999)
-    expiration = datetime.now() + timedelta(minutes=10)  # Koden utløper etter 10 minutter
-    verification_codes[email] = {'code': code, 'expiration': expiration}
-    return code
-
 @app.route('/verifiser/<email>', methods=['GET', 'POST'])
 def verify(email):
     if request.method == 'POST':
         code_entered = request.form.get('code')
-        stored_data = verification_codes.get(email)
-        if stored_data and datetime.now() < stored_data['expiration']:
-            if int(code_entered) == stored_data['code']:
-                user = User.query.filter_by(email=email).first()
-                login_user(user)
-                flash("Velkommen!")
-                del verification_codes[email]  # Fjern koden etter vellykket verifisering
-                return redirect(url_for('Loggetinnn'))
-            else:
-                flash("Feil verifiseringskode, prøv igjen.")
+        if int(code_entered) == verification_codes.get(email):
+            user = User.query.filter_by(email=email).first()
+            login_user(user)  # Logg inn brukeren hvis koden er riktig
+            flash("Velkommen!")
+            return redirect(url_for('Loggetinnn'))
         else:
-            flash("Verifiseringskoden er utløpt eller ugyldig.")
+            flash("Feil verifiseringskode, prøv igjen.")
     return render_template('verifiser.html', email=email)
 
 @app.route('/loggetinn', methods=['GET', 'POST'])
 @login_required
 def Loggetinnn():
+    # Hent besøkstelleren fra databasen
     visit_count = VisitCount.query.first()
-    count = visit_count.count if visit_count else 0
+    
+    # Hvis visit_count ikke eksisterer (f.eks. hvis databasen er ny), sett den til 0
+    if visit_count:
+        count = visit_count.count
+    else:
+        count = 0  # Hvis ikke opprettet, sett som 0 eller gjør en håndtering her
+    visit_count = VisitCount.query.first()
     top_users = User.query.order_by(User.defeats.desc()).limit(10).all()
-    return render_template('Loggetinn.html', visit_count=count, top_users=top_users)
+    return render_template('Loggetinn.html', visit_count=visit_count.count, top_users=top_users)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -211,44 +202,39 @@ def tilbakestill_passord(email):
             flash("Feil tilbakestillingskode, prøv igjen.")
 
     return render_template('tilbakestill_passord.html', email=email)
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
 @app.route('/Spill')
 @login_required
 def spill():
-    try:
-        # Hent besøkstelleren
-        visit_count = VisitCount.query.first()
-        logging.debug(f"Retrieved visit_count: {visit_count}")
+    # Hent besøkstelleren fra databasen, eller opprett en ny rad hvis den ikke finnes
+    visit_count = VisitCount.query.first()
 
-        if not visit_count:
-            logging.debug("No visit count found, creating new one")
-            visit_count = VisitCount(count=0)
-            db.session.add(visit_count)
-            db.session.commit()
 
-        if 'has_counted' not in session:
-            logging.debug("Incrementing visit count")
-            visit_count.count += 1
-            db.session.commit()
-            session['has_counted'] = True
+    # Hvis ingen besøksteller finnes, opprett en
+    if not visit_count:
+        visit_count = VisitCount(count=0)
+        db.session.add(visit_count)
+        db.session.commit()
 
-        return render_template('Spill.html', visit_count=visit_count.count)
-    except Exception as e:
-        logging.error(f"Error in spill route: {str(e)}", exc_info=True)
-        return f"En feil oppstod: {str(e)}", 500
+    # Sjekk om brukeren allerede har talt et besøk i denne sesjonen
+    if 'has_counted' not in session:
+        # Øk antall besøk og lagre det
+        visit_count.count += 1
+        db.session.commit()  # Commit after making changes
+
+        # Sett sesjonsvariabel for å forhindre flere tellinger
+        session['has_counted'] = True
+
+    # Returner Spill.html og send med `visit_count`
+    return render_template('Spill.html', visit_count=visit_count.count)
 
 @app.route('/update_defeats', methods=['POST'])
 @login_required
 def update_defeats():
     try:
-        if not hasattr(current_user, 'defeats'):
-            print("'defeats' attribute does not exist on User model")
-            return jsonify({"error": "User model does not have 'defeats' attribute"}), 500
-        
+        # Initialiser defeats til 0 hvis den er None
         if current_user.defeats is None:
             current_user.defeats = 0
+        
         current_user.defeats += 1
         db.session.commit()
         print(f"Defeats updated for user {current_user.email}. New value: {current_user.defeats}")
@@ -257,24 +243,7 @@ def update_defeats():
         print(f"Error updating defeats: {str(e)}")
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-    
-from sqlalchemy import inspect
 
-def column_exists(table, column):
-    inspector = inspect(db.engine)
-    return column in [c['name'] for c in inspector.get_columns(table)]
-
-with app.app_context():
-    if not column_exists('user', 'defeats'):
-        print("'defeats' column does not exist in User table. Please run database migrations.")
-
-# Legg til dette midlertidig i app.py for å oppdatere eksisterende brukere
-with app.app_context():
-    users = User.query.all()
-    for user in users:
-        if user.defeats is None:
-            user.defeats = 0
-    db.session.commit()  
    
 if __name__ == '__main__':
     app.run(debug=True)
