@@ -190,3 +190,17 @@ button#boss:hover {
     background-color: #cd7f32;
 }
 /* Stiler for navigasjonsmenyen */
+#bilde{
+
+}
+.bilde img{
+    width: 40%;
+    display: block;
+    margin: 0 auto;
+}
+.bilde{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
